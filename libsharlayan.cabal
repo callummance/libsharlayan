@@ -16,6 +16,7 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     Data.Krile.Sharlayan.News
+                       Data.Krile.Sharlayan.User
   build-depends:       base >= 4.7 && < 5,
                        tagsoup >= 0.14.1,
                        HTTP >= 4000.3.5
