@@ -20,7 +20,7 @@ data Character = Character {
   ,world   :: String         -- ^ The world the character is on
   ,face    :: String         -- ^ The URL of the character's mugshot
   ,profile :: String         -- ^ Character profile URL
-  ,fc      :: Maybe Int      -- ^ Free Company's lodestone id (if available)
+  ,fc      :: Maybe Integer  -- ^ Free Company's lodestone id (if available)
   ,time    :: Maybe UTCTime  -- ^ The time this character's data was last updated
 } deriving (Show)
 
@@ -110,3 +110,17 @@ parseLodestoneResults url
                        . filter (~== TagOpen "a" [("class", "entry__link")])
         getUid :: [Tag String] -> Int
         getUid = read . head . (splitOn "/") . (!! 1) . (splitOn "character/") . getCharProfile
+
+-- |Parses a lodestone character profile page at a given URL and returns an image link and FC identifier
+parseProfilePage :: String -> IO (String, Integer)
+parseProfilePage url
+  = do
+    tags <- parseTags <$> openURL url
+    return (pictureLoc tags, fcId tags)
+      where
+        pictureLoc :: [Tag String] -> String
+        pictureLoc = (fromAttrib "href") . head . tail . head . sections (~== TagOpen "div" [("class", "character__detail__image")])
+        fcPage :: [Tag String] -> String
+        fcPage = (fromAttrib "href") . head . filter (~== TagOpen "a" [("class", "entry__freecompany")])
+        fcId :: [Tag String] -> Integer
+        fcId = read . head . (splitOn "/") . (!! 1) . (splitOn "freecompany/") . fcPage
