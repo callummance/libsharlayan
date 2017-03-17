@@ -6,6 +6,7 @@ import Network.HTTP
 import Network.HTTP.Headers
 import Network.HTTP.Base
 import Text.HTML.TagSoup
+import Control.Monad.TakeWhileM
 import Data.Time.Clock
 import Data.List.Split
 import Network.URI          ( parseURI )
@@ -38,7 +39,7 @@ lsHost = "http://eu.finalfantasyxiv.com"
 
 -- |Searches for a character on Lodestone given a full name and World
 findChar :: String -> String -> IO [Character]
-findChar n w = parseLodestoneResults $ genQueryURL n w
+findChar n w = fmap concat $ takeWhileM (not . null) $ map parseLodestoneResults $ genQueryURL n w
 
 
 
@@ -63,16 +64,17 @@ mobRequest urlString
                           , rqMethod   = m
                           }
 
--- |Takes a player name and world, and returns the full search URL
-genQueryURL :: String -> String -> String
-genQueryURL n w = lsSearchRoot ++ genQueryString n w
+-- |Takes a player name and world, and returns a list of search URLs
+genQueryURL :: String -> String -> [String]
+genQueryURL n w = map (((++) lsSearchRoot) . genQueryString n w) [1..]
 
 -- |Takes a player name and a world, and returns the query string to search the first page only of lodestone results
-genQueryString :: String -> String -> String
-genQueryString name world
+genQueryString :: String -> String -> Int -> String
+genQueryString name world page
   = "?order=&q=" ++ escapeName name 
     ++ "&worldname=" ++ world 
-    ++ "&classjob=&race_tribe=&page=1"
+    ++ "&classjob=&race_tribe=&page="
+    ++ (show page)
     where
       escapeName name = map escapeChar name
       escapeChar ' ' = '+'
