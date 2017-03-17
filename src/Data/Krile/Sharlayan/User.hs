@@ -20,8 +20,8 @@ data Character = Character {
   ,world   :: String         -- ^ The world the character is on
   ,face    :: String         -- ^ The URL of the character's mugshot
   ,profile :: String         -- ^ Character profile URL
+  ,time    :: UTCTime        -- ^ The time this character's data was last updated
   ,fc      :: Maybe Integer  -- ^ Free Company's lodestone id (if available)
-  ,time    :: Maybe UTCTime  -- ^ The time this character's data was last updated
 } deriving (Show)
 
 -- |The User Agent to be used for fetching mobile pages
@@ -84,18 +84,20 @@ parseLodestoneResults url
   = do
     tags <- parseTags <$> openURL url
     let entries = partitions startOfEntry tags
-    return $ map toCharRecord entries
+    mapM toCharRecord entries
       where 
         startOfEntry e = (||) (e ~== TagOpen "div" [("class", "entry")]) 
                               (e ~== TagOpen "div" [("class", "entry last_message")])
-        toCharRecord :: [Tag String] -> Character
-        toCharRecord t = Character { uid  = getUid t
-                                   , name = getName t
-                                   , world = getWorld t
-                                   , face = getFace t
-                                   , profile = getCharProfile t
-                                   , fc = Nothing
-                                   , time = Nothing}
+        toCharRecord :: [Tag String] -> IO Character
+        toCharRecord t = do
+          curTime <- getCurrentTime
+          return Character { uid  = getUid t
+                           , name = getName t
+                           , world = getWorld t
+                           , face = getFace t
+                           , profile = getCharProfile t
+                           , fc = Nothing
+                           , time = curTime}
         getWorld :: [Tag String] -> String
         getWorld = innerText . (take 2) . head . sections (~== TagOpen "p" [("class", "entry__world")])
         getName :: [Tag String] -> String
