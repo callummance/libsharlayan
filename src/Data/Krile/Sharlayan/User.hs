@@ -1,5 +1,5 @@
 -- |Functions for fetching player/character data from the lodestone
-module Data.Krile.Sharlayan.User
+module Data.Krile.Sharlayan.User (Character, findChar, expandCharacter)
   where
 
 import Network.HTTP
@@ -97,7 +97,7 @@ parseLodestoneResults url
                            , face = getFace t
                            , profile = getCharProfile t
                            , fc = Nothing
-                           , time = curTime}
+                           , time = curTime }
         getWorld :: [Tag String] -> String
         getWorld = innerText . (take 2) . head . sections (~== TagOpen "p" [("class", "entry__world")])
         getName :: [Tag String] -> String
@@ -112,6 +112,21 @@ parseLodestoneResults url
                        . filter (~== TagOpen "a" [("class", "entry__link")])
         getUid :: [Tag String] -> Int
         getUid = read . head . (splitOn "/") . (!! 1) . (splitOn "character/") . getCharProfile
+
+-- |Updates a character data object with information parsed from their profile page
+expandCharacter :: Character -> IO (Character)
+expandCharacter char
+  = do
+    let profileURL = profile char
+    (pic, fcid) <- parseProfilePage profileURL
+    time <- getCurrentTime
+    return Character { uid = uid char
+                     , name = name char
+                     , world = world char
+                     , face = face char
+                     , profile = profile char
+                     , fc = Just fcid
+                     , time = time }
 
 -- |Parses a lodestone character profile page at a given URL and returns an image link and FC identifier
 parseProfilePage :: String -> IO (String, Integer)
