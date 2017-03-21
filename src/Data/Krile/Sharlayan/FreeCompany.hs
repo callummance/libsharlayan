@@ -1,5 +1,5 @@
 -- |Free Company details and rankings
-module Data.Krile.Sharlayan.FreeCompany
+module Data.Krile.Sharlayan.FreeCompany (FreeCompany, fetchFC, parseFCPage)
   where
  
 import Data.List.Split
