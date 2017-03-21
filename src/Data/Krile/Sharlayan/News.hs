@@ -3,6 +3,7 @@ module Data.Krile.Sharlayan.News (fetchNews)
   where
 
 import Network.HTTP
+import Network.Protocol.HTTP.Parser
 import Text.HTML.TagSoup
 
 -- |The page that needed to be fetched for news scraping
@@ -15,13 +16,6 @@ fetchNews = parseLodestoneNews lsNewsPage
 
 
 
-
-
-
--- |Helper function to fetch the contents of a URL
-openURL :: String -> IO String
-openURL url
-  = getResponseBody =<< simpleHTTP (getRequest url)
 
 -- |Parse the lodestone news page to generate a list of title-url tuples
 parseLodestoneNews :: String -> IO [(String, String)]

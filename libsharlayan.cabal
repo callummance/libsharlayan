@@ -17,7 +17,9 @@ library
   hs-source-dirs:      src
   exposed-modules:     Data.Krile.Sharlayan.News
                        Data.Krile.Sharlayan.User
+                       Data.Krile.Sharlayan.FreeCompany
                        Control.Monad.TakeWhileM
+                       Network.Protocol.HTTP.Parser
   build-depends:       base >= 4.7 && < 5,
                        tagsoup >= 0.14.1,
                        HTTP >= 4000,

@@ -2,16 +2,12 @@
 module Data.Krile.Sharlayan.User (Character, findChar, expandCharacter)
   where
 
-import Network.HTTP
-import Network.HTTP.Headers
-import Network.HTTP.Base
 import Text.HTML.TagSoup
+import Network.Protocol.HTTP.Parser
 import Control.Monad.TakeWhileM
 import Data.Time.Clock
 import Data.List.Split
-import Network.URI          ( parseURI )
 import Data.Maybe           ( fromMaybe )
-import Network.BufferType   ( BufferOp(..), BufferType(..) )
 
 
 -- |Data type for stroing details on a character
@@ -24,10 +20,6 @@ data Character = Character {
   ,time    :: UTCTime        -- ^ The time this character's data was last updated
   ,fc      :: Maybe Integer  -- ^ Free Company's lodestone id (if available)
 } deriving (Show)
-
--- |The User Agent to be used for fetching mobile pages
-userAgent :: String
-userAgent = "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Mobile Safari/537.36"
 
 -- |The root of the URL to be used for player searches
 lsSearchRoot :: String
@@ -43,26 +35,6 @@ findChar n w = fmap concat $ takeWhileM (not . null) $ map parseLodestoneResults
 
 
 
--- |Helper function to fetch the contents of a URL
-openURL :: String -> IO String
-openURL url
-  = getResponseBody =<< simpleHTTP (mobRequest url)
-
--- |Helper function to create a request with modified UserAgent
-mobRequest :: String -> Request_String
-mobRequest urlString
-  = case parseURI urlString of
-      Nothing   -> error ("mobRequest: Not a valid URL - " ++ urlString)
-      Just uri  -> req GET uri
-    where
-      empty = buf_empty (bufferOps)
-      req m uri = Request { rqURI      = uri
-                          , rqBody     = empty
-                          , rqHeaders  = [ Header HdrContentLength "0"
-                                         , Header HdrUserAgent     userAgent
-                                         ]
-                          , rqMethod   = m
-                          }
 
 -- |Takes a player name and world, and returns a list of search URLs
 genQueryURL :: String -> String -> [String]
@@ -84,7 +56,7 @@ genQueryString name world page
 parseLodestoneResults :: String -> IO [Character]
 parseLodestoneResults url
   = do
-    tags <- parseTags <$> openURL url
+    tags <- parseTags <$> mobOpenURL url
     let entries = partitions startOfEntry tags
     mapM toCharRecord entries
       where 
@@ -134,7 +106,7 @@ expandCharacter char
 parseProfilePage :: String -> IO (String, Integer)
 parseProfilePage url
   = do
-    tags <- parseTags <$> openURL url
+    tags <- parseTags <$> mobOpenURL url
     return (pictureLoc tags, fcId tags)
       where
         pictureLoc :: [Tag String] -> String
