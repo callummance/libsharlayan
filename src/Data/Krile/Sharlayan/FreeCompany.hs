@@ -20,6 +20,13 @@ data FreeCompany = FreeCompany {
 } deriving Show
 
 
+-- |The root of the URL to be used for player searches
+lsFcRoot :: String
+lsFcRoot = "http://eu.finalfantasyxiv.com/lodestone/freecompany/"
+
+-- |Creates a new FC object from an FC ID
+fetchFC :: Integer -> IO FreeCompany
+fetchFC = parseFCPage . ((++) lsFcRoot) . show
 
 
 -- |Creates a new FC object from a Lodestone URL
