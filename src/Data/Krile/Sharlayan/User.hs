@@ -1,5 +1,5 @@
 -- |Functions for fetching player/character data from the lodestone
-module Data.Krile.Sharlayan.User (Character, findChar, expandCharacter)
+module Data.Krile.Sharlayan.User (Character(..), findChar, expandCharacter)
   where
 
 import Text.HTML.TagSoup
