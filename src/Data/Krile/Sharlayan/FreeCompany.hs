@@ -11,7 +11,7 @@ import Text.HTML.TagSoup
 data FreeCompany = FreeCompany {
     fid       :: Integer    -- ^ The FC's Lodestone identifier
   , fcName    :: String     -- ^ The Free Company's name
-  , world     :: String     -- ^ The world upon which the FC resides
+  , fcWorld   :: String     -- ^ The world upon which the FC resides
   , fcURL     :: String     -- ^ The URL of the FC's profile on Lodestone
   , tUpdated  :: UTCTime    -- ^ The time the FC's details were last updated
   , cBoard    :: String     -- ^ The company board message
@@ -42,7 +42,7 @@ parseFCPage url
         return FreeCompany {
             fid = calcId u
           , fcName = getName ts
-          , world = getWorld ts
+          , fcWorld = getWorld ts
           , fcURL = u
           , tUpdated = updateTime
           , cBoard = getBoard ts
