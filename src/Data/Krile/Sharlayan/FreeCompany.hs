@@ -62,7 +62,7 @@ parseFCPage url
       getWorld :: [Tag String] -> String
       getWorld = unwords . words . innerText . (take 2) . head . tail . sections (~== TagOpen "p" [("class", "entry__world")])
       getBoard :: [Tag String] -> String
-      getBoard = innerText . (take 2) . head . sections (~== TagOpen "div" [("class", "freecompany__text freecompany__text__slogan")])
+      getBoard = innerText . (take 2) . head . sections (~== TagOpen "p" [("class", "freecompany__text freecompany__text__slogan")])
       getGc :: [Tag String] -> String
       getGc = innerText . (take 2) . head . sections (~== TagOpen "p" [("class", "entry__world")])
       getName :: [Tag String] -> String
