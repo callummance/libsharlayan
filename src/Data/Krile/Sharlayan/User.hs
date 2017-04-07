@@ -83,7 +83,7 @@ parseLodestoneResults url
         getCharProfile :: [Tag String] -> String
         getCharProfile = head 
                        . (map (((++) lsHost) . fromAttrib "href")) 
-                       . filter (~== TagOpen "a" [("class", "entry__link")])
+                       . filter (~== TagOpen "a" [("class", "entry__chara__link")])
         getUid :: [Tag String] -> Int
         getUid = read . head . (splitOn "/") . (!! 1) . (splitOn "character/") . getCharProfile
 
